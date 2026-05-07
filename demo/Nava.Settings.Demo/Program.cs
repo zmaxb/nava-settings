@@ -2,10 +2,27 @@ using Nava.Settings;
 using Nava.Settings.Abstractions;
 using Nava.Settings.DependencyInjection;
 using Nava.Settings.Extensions;
+using Nava.Settings.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSettingsWithSqlite(_ => "Data Source=demo.db");
+const string settingsDbPath = "demo.db";
+
+// Example:
+// Bootstrap settings loading before application build.
+// Used for early infrastructure configuration
+// without dependency injection/runtime services.
+var bootstrapSettings = new BootstrapReader<DemoSettings>(settingsDbPath).Read(
+    "demo",
+    () => new DemoSettings
+    {
+        Message = "Default message",
+        Theme = "light"
+    });
+
+// Configure runtime settings infrastructure
+// for application services and DI usage.
+builder.Services.AddSettingsWithSqlite(_ => $"Data Source={settingsDbPath}");
 builder.Services.AddRuntimeSettings<DemoSettings>();
 
 var app = builder.Build();

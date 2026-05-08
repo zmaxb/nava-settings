@@ -7,7 +7,7 @@ Lightweight runtime settings library for .NET applications.
 - Strongly-typed settings (generic API)
 - Runtime updates with events
 - Simple DI integration
-- Safe JSON serialization with fallback
+- Safe JSON serialization with fallback values
 
 ## Installation
 Add project reference or include as a library.
@@ -23,18 +23,49 @@ public class DemoSettings
 }
 ```
 
-### 2. Register services
+### 2. Bootstrap settings loading
+
+In some scenarios settings are required before
+dependency injection or application services
+are initialized.
+
+`BootstrapReader<T>` allows reading persisted
+settings directly from SQLite during early
+application startup.
+
+```csharp
+const string settingsDbPath = "app.db";
+
+var bootstrapSettings =
+    new BootstrapReader<DemoSettings>(settingsDbPath)
+        .Read(
+            "demo",
+            () => new DemoSettings
+            {
+                Message = "Default message"
+            });
+
+Console.WriteLine(bootstrapSettings.Message);
+```
+
+Typical use cases:
+- Early infrastructure configuration
+- Theme/application mode selection
+- Logging/bootstrap initialization
+- Startup settings before runtime initialization
+
+### 3. Register services
 ```csharp
 builder.Services.AddSettingsWithSqlite(_ => "Data Source=app.db");
 builder.Services.AddRuntimeSettings<DemoSettings>();
 ```
 
-### 3. Initialize
+### 4. Initialize
 ```csharp
 await app.Services.InitializeApplicationSettingsAsync();
 ```
 
-### 4. Use in code
+### 5. Use in code
 ```csharp
 public class MyService
 {
@@ -52,7 +83,7 @@ public class MyService
 }
 ```
 
-### 5. Update settings
+### 6. Update settings
 ```csharp
 await provider.UpdateAsync(new DemoSettings
 {
@@ -60,7 +91,7 @@ await provider.UpdateAsync(new DemoSettings
 });
 ```
 
-### 6. Subscribe to changes
+### 7. Subscribe to changes
 ```csharp
 provider.Subscribe(s =>
 {

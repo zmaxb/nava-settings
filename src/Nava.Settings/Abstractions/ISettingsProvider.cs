@@ -4,5 +4,5 @@ public interface ISettingsProvider<T> : IRuntimeSettingsInitializer
 {
     T Settings { get; }
     Task UpdateAsync(T settings);
-    public event Action<T>? SettingsChanged;
+    public event Func<T, Task>? SettingsChanged;
 }

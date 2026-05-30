@@ -14,7 +14,7 @@ public class RuntimeSettingsProvider<T>(
 {
     private readonly Lock _lock = new();
     private T _settings = options.Value;
-    public event Action<T>? SettingsChanged;
+    public event Func<T, Task>? SettingsChanged;
 
     public T Settings
     {
@@ -32,6 +32,7 @@ public class RuntimeSettingsProvider<T>(
         using var scope = scopeFactory.CreateScope();
         var store = scope.ServiceProvider.GetRequiredService<ISettingsStore>();
         var savedSettings = await store.GetAsync<T>();
+        T settings;
 
         if (savedSettings is not null)
         {
@@ -40,21 +41,20 @@ public class RuntimeSettingsProvider<T>(
             lock (_lock)
             {
                 _settings = savedSettings;
+                settings = _settings;
             }
         }
         else
         {
             logger.LogWarning("Using default settings for {Type}", typeof(T).Name);
+
+            lock (_lock)
+            {
+                settings = _settings;
+            }
         }
 
-        Action<T>? handler;
-
-        lock (_lock)
-        {
-            handler = SettingsChanged;
-        }
-
-        handler?.Invoke(_settings);
+        await NotifySettingsChangedAsync(settings);
     }
 
     public async Task UpdateAsync(T settings)
@@ -63,14 +63,31 @@ public class RuntimeSettingsProvider<T>(
         var store = scope.ServiceProvider.GetRequiredService<ISettingsStore>();
         await store.SaveAsync(settings);
 
-        Action<T>? handler;
-
         lock (_lock)
         {
             _settings = settings;
+        }
+
+        await NotifySettingsChangedAsync(settings);
+    }
+
+    private async Task NotifySettingsChangedAsync(T settings)
+    {
+        Func<T, Task>? handler;
+
+        lock (_lock)
+        {
             handler = SettingsChanged;
         }
 
-        handler?.Invoke(settings);
+        if (handler is null)
+        {
+            return;
+        }
+
+        foreach (var subscription in handler.GetInvocationList().Cast<Func<T, Task>>())
+        {
+            await subscription(settings);
+        }
     }
 }

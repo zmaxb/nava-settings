@@ -10,4 +10,8 @@
         <ProjectReference Include="..\..\src\Nava.Settings\Nava.Settings.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Remove="Nerdbank.GitVersioning" />
+    </ItemGroup>
+
 </Project>

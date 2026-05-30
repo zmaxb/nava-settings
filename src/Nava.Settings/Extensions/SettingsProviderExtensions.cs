@@ -8,6 +8,22 @@ public static class SettingsProviderExtensions
         this ISettingsProvider<T> provider,
         Action<T> handler)
     {
+        Task HandleSettingsChanged(T settings)
+        {
+            handler(settings);
+            return Task.CompletedTask;
+        }
+
+        provider.SettingsChanged += HandleSettingsChanged;
+
+        return new Subscription(() =>
+            provider.SettingsChanged -= HandleSettingsChanged);
+    }
+
+    public static IDisposable Subscribe<T>(
+        this ISettingsProvider<T> provider,
+        Func<T, Task> handler)
+    {
         provider.SettingsChanged += handler;
 
         return new Subscription(() =>
@@ -17,9 +33,9 @@ public static class SettingsProviderExtensions
     public static IDisposable Subscribe<T>(
         this ISettingsProvider<T> provider,
         Func<T, Task> handler,
-        Action<Exception>? onError = null)
+        Action<Exception> onError)
     {
-        async void HandleSettingsChanged(T settings)
+        async Task HandleSettingsChanged(T settings)
         {
             try
             {
@@ -27,7 +43,7 @@ public static class SettingsProviderExtensions
             }
             catch (Exception exception)
             {
-                onError?.Invoke(exception);
+                onError(exception);
             }
         }
 

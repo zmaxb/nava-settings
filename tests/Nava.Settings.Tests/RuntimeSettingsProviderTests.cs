@@ -56,7 +56,11 @@ public class RuntimeSettingsProviderTests
 
         TestSettings? changed = null;
 
-        provider.SettingsChanged += s => changed = s;
+        provider.SettingsChanged += s =>
+        {
+            changed = s;
+            return Task.CompletedTask;
+        };
 
         var newSettings = new TestSettings { Value = "updated" };
 
@@ -68,6 +72,42 @@ public class RuntimeSettingsProviderTests
     }
 
     [Fact]
+    public async Task UpdateAsync_AwaitsSettingsChangedHandlers()
+    {
+        var store = new Mock<ISettingsStore>();
+
+        var sp = new ServiceCollection()
+            .AddScoped(_ => store.Object)
+            .BuildServiceProvider();
+
+        var provider = new RuntimeSettingsProvider<TestSettings>(
+            Options.Create(new TestSettings { Value = "default" }),
+            sp.GetRequiredService<IServiceScopeFactory>(),
+            Mock.Of<ILogger<RuntimeSettingsProvider<TestSettings>>>()
+        );
+
+        var firstCompleted = false;
+        var secondCompleted = false;
+
+        provider.SettingsChanged += async _ =>
+        {
+            await Task.Delay(10);
+            firstCompleted = true;
+        };
+
+        provider.SettingsChanged += async _ =>
+        {
+            await Task.Delay(10);
+            secondCompleted = true;
+        };
+
+        await provider.UpdateAsync(new TestSettings { Value = "updated" });
+
+        firstCompleted.Should().BeTrue();
+        secondCompleted.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task JsonSettingsStore_SaveAndLoad_ShouldRoundtrip()
     {
         var repo = new Mock<IConfigurationRepository>();
@@ -75,7 +115,7 @@ public class RuntimeSettingsProviderTests
         string? saved = null;
 
         repo.Setup(x => x.SetAsync(It.IsAny<string>(), It.IsAny<string>()))
-            .Callback<string, string>((k, v) => saved = v);
+            .Callback<string, string>((_, v) => saved = v);
 
         repo.Setup(x => x.GetAsync(It.IsAny<string>()))
             .ReturnsAsync(() => saved);

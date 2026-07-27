@@ -4,7 +4,7 @@ using Nava.Settings.Infrastructure;
 
 namespace Nava.Settings.Extensions;
 
-public static class RuntimeSettingsServiceCollectionExtensions
+public static class SettingsServiceCollectionExtensions
 {
     public static void AddRuntimeSettings<T>(this IServiceCollection services)
         where T : class
@@ -16,5 +16,14 @@ public static class RuntimeSettingsServiceCollectionExtensions
 
         services.AddSingleton<IRuntimeSettingsInitializer>(sp =>
             sp.GetRequiredService<RuntimeSettingsProvider<T>>());
+    }
+
+    public static void AddScopedSettings<T>(this IServiceCollection services)
+        where T : class
+    {
+        services.AddSingleton<ScopedSettingsProvider<T>>();
+
+        services.AddSingleton<IScopedSettingsProvider<T>>(sp =>
+            sp.GetRequiredService<ScopedSettingsProvider<T>>());
     }
 }

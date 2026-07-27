@@ -10,9 +10,9 @@ public class JsonSettingsStore(
     ILogger<JsonSettingsStore> logger)
     : ISettingsStore
 {
-    public async Task<T?> GetAsync<T>() where T : class
+    public async Task<T?> GetAsync<T>(string? scope = null) where T : class
     {
-        var key = ConfigurationKey.For<T>();
+        var key = ConfigurationKey.For<T>(scope);
 
         var raw = await repository.GetAsync(key);
 
@@ -29,11 +29,17 @@ public class JsonSettingsStore(
         }
     }
 
-    public async Task SaveAsync<T>(T settings) where T : class
+    public async Task SaveAsync<T>(T settings, string? scope = null) where T : class
     {
-        var key = ConfigurationKey.For<T>();
+        var key = ConfigurationKey.For<T>(scope);
         var json = JsonSerializer.Serialize(settings, options);
 
         await repository.SetAsync(key, json);
+    }
+
+    public async Task RemoveAsync<T>(string? scope = null) where T : class
+    {
+        var key = ConfigurationKey.For<T>(scope);
+        await repository.RemoveAsync(key);
     }
 }

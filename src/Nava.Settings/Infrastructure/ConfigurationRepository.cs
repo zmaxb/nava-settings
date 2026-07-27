@@ -16,8 +16,7 @@ public sealed class ConfigurationRepository(ConfigurationDbContext db) : IConfig
 
     public async Task SetAsync(string key, string value)
     {
-        // Atomic UPSERT (SQLite/PostgreSQL) to guarantee safe concurrent writes
-        // and avoid duplicate key errors under race conditions
+        // Atomic SQLite UPSERT to avoid duplicate key errors under concurrent writes.
         await db.Database.ExecuteSqlInterpolatedAsync(
             $"""
 
@@ -26,5 +25,12 @@ public sealed class ConfigurationRepository(ConfigurationDbContext db) : IConfig
              ON CONFLICT(Key) DO UPDATE SET Value = excluded.Value;
                      
              """);
+    }
+
+    public async Task RemoveAsync(string key)
+    {
+        await db.Configurations
+            .Where(x => x.Key == key)
+            .ExecuteDeleteAsync();
     }
 }

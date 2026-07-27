@@ -11,8 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Remove="Nerdbank.GitVersioning" />
-      <PackageReference Update="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.302" />
+        <PackageReference Remove="Nerdbank.GitVersioning"/>
+        <PackageReference Update="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.302"/>
     </ItemGroup>
 
 </Project>

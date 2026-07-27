@@ -80,14 +80,8 @@ public class RuntimeSettingsProvider<T>(
             handler = SettingsChanged;
         }
 
-        if (handler is null)
-        {
-            return;
-        }
+        if (handler is null) return;
 
-        foreach (var subscription in handler.GetInvocationList().Cast<Func<T, Task>>())
-        {
-            await subscription(settings);
-        }
+        foreach (var subscription in handler.GetInvocationList().Cast<Func<T, Task>>()) await subscription(settings);
     }
 }

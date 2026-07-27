@@ -29,7 +29,7 @@ public static class SettingsProviderExtensions
         return new Subscription(() =>
             provider.SettingsChanged -= handler);
     }
-    
+
     public static IDisposable Subscribe<T>(
         this ISettingsProvider<T> provider,
         Func<T, Task> handler,

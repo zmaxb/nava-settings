@@ -2,7 +2,7 @@ namespace Nava.Settings;
 
 public static class ConfigurationKey
 {
-    public static string For<T>(string? subKey = null)
+    public static string For<T>(string? scope = null)
     {
         var type = typeof(T);
 
@@ -13,8 +13,8 @@ public static class ConfigurationKey
         if (attr == null)
             throw new InvalidOperationException($"The type {type} has no SettingsKeyAttribute");
 
-        return subKey is null
+        return scope is null
             ? attr.Key
-            : $"{attr.Key}:{subKey}";
+            : $"{attr.Key}:{scope}";
     }
 }

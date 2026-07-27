@@ -9,7 +9,7 @@ public sealed class BootstrapReader<T>(
     where T : class
 {
     private readonly JsonSerializerOptions _jsonOptions =
-        jsonSerializerOptions ?? new JsonSerializerOptions();
+        jsonSerializerOptions ?? SettingsJsonOptions.CreateDefault();
 
     public T Read(
         string key,

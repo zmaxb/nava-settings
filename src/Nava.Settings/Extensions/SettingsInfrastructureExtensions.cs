@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Nava.Settings.Abstractions;
@@ -18,12 +17,7 @@ public static class SettingsInfrastructureExtensions
             options.UseSqlite(connection);
         });
 
-        services.AddSingleton<JsonSerializerOptions>(_ =>
-            new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                WriteIndented = false
-            });
+        services.AddSingleton(_ => SettingsJsonOptions.CreateDefault());
 
         services.AddScoped<IConfigurationRepository, ConfigurationRepository>();
         services.AddScoped<ISettingsStore, JsonSettingsStore>();

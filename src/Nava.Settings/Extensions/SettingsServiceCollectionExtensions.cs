@@ -9,6 +9,8 @@ public static class SettingsServiceCollectionExtensions
     public static void AddRuntimeSettings<T>(this IServiceCollection services)
         where T : class
     {
+        services.AddOptions<T>();
+
         services.AddSingleton<RuntimeSettingsProvider<T>>();
 
         services.AddSingleton<ISettingsProvider<T>>(sp =>

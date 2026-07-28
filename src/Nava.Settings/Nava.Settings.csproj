@@ -4,18 +4,68 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
+        <PackageId>Nava.Settings</PackageId>
+
+        <PackageIcon>icon.png</PackageIcon>
+
+        <Authors>zmaxb</Authors>
+        <Company>zmaxb</Company>
+
+        <Title>Nava.Settings</Title>
+        <Description>
+            Typed persistent settings for .NET applications with SQLite storage and caching.
+        </Description>
+
+        <PackageTags>
+            settings;configuration;dotnet;sqlite;entity-framework-core;caching
+        </PackageTags>
+
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+
+        <PackageProjectUrl>https://github.com/zmaxb/nava-settings</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/zmaxb/nava-settings</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.10"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.10">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design"
+                          Version="10.0.10">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.10"/>
-        <PackageReference Remove="Nerdbank.GitVersioning"/>
-        <PackageReference Update="Microsoft.CodeAnalysis.NetAnalyzers" Version="10.0.302"/>
-        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.5"/>
+
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"
+                          Version="10.0.10"/>
+
+        <PackageReference Update="Microsoft.CodeAnalysis.NetAnalyzers"
+                          Version="10.0.302"/>
+
+        <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3"
+                          Version="3.0.5"/>
+
+        <PackageReference Update="Nerdbank.GitVersioning"
+                          Version="3.10.91"/>
+    </ItemGroup>
+
+    <ItemGroup>
+
+        <None Include="..\..\assets\icon.png"
+              Pack="true"
+              PackagePath="\"/>
+
+        <None Include="..\..\README.md"
+              Pack="true"
+              PackagePath="\"/>
+
     </ItemGroup>
 
 </Project>

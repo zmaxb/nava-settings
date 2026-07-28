@@ -5,12 +5,29 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using Nava.Settings.Abstractions;
+using Nava.Settings.Extensions;
 using Nava.Settings.Infrastructure;
 
 namespace Nava.Settings.Tests;
 
 public class RuntimeSettingsProviderTests
 {
+    [Fact]
+    public void Registration_ResolvesRuntimeProvider_FromBareServiceCollection()
+    {
+        var services = new ServiceCollection();
+
+        services.AddSettingsWithSqlite(_ => "Data Source=:memory:");
+        services.AddRuntimeSettings<TestSettings>();
+
+        using var serviceProvider = services.BuildServiceProvider();
+
+        serviceProvider
+            .GetRequiredService<ISettingsProvider<TestSettings>>()
+            .Should()
+            .NotBeNull();
+    }
+
     [Fact]
     public async Task InitializeAsync_LoadsSettingsFromStore()
     {

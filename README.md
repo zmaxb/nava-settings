@@ -14,7 +14,64 @@ Lightweight strongly typed settings library for .NET applications with SQLite pe
 
 ## Installation
 
-Add a reference to the `Nava.Settings` project.
+Nava.Settings requires .NET 10.
+
+Install the package from NuGet:
+
+```shell
+dotnet add package Nava.Settings --version 0.2.0
+```
+
+## Quick start
+
+The following example configures SQLite storage, registers runtime settings,
+applies database migrations, and exposes endpoints for reading and updating
+the settings:
+
+```csharp
+using Nava.Settings;
+using Nava.Settings.Abstractions;
+using Nava.Settings.DependencyInjection;
+using Nava.Settings.Extensions;
+
+var builder = WebApplication.CreateBuilder(args);
+
+const string settingsDbPath = "settings.db";
+
+builder.Services.AddSettingsWithSqlite(
+    _ => $"Data Source={settingsDbPath}");
+
+builder.Services.AddRuntimeSettings<DemoSettings>();
+
+var app = builder.Build();
+
+await app.Services.InitializeApplicationSettingsAsync();
+
+app.MapGet(
+    "/settings",
+    (ISettingsProvider<DemoSettings> provider) => provider.Settings);
+
+app.MapPut(
+    "/settings",
+    async (
+        DemoSettings settings,
+        ISettingsProvider<DemoSettings> provider) =>
+    {
+        await provider.UpdateAsync(settings);
+        return Results.NoContent();
+    });
+
+app.Run();
+
+[SettingsKey("demo")]
+public sealed class DemoSettings
+{
+    public string Message { get; set; } = "Hello";
+}
+```
+
+`InitializeApplicationSettingsAsync()` applies pending database migrations
+and loads all registered runtime settings from SQLite.
 
 ## Configuration
 
@@ -126,7 +183,10 @@ public sealed class UserAppearanceSettings
 builder.Services.AddScopedSettings<UserAppearanceSettings>();
 ```
 
-Scoped settings do not require runtime initialization.
+Scoped providers are loaded on demand and do not have their own initialization
+step. The application should still call
+`InitializeApplicationSettingsAsync()` once at startup to apply database
+migrations.
 
 ### Read scoped settings
 
@@ -192,24 +252,6 @@ Typical use cases include:
 * logging initialization
 * application mode selection
 * settings required before the application host starts
-
-## Complete example
-
-```csharp
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddSettingsWithSqlite(
-    _ => "Data Source=settings.db");
-
-builder.Services.AddRuntimeSettings<DemoSettings>();
-builder.Services.AddScopedSettings<UserAppearanceSettings>();
-
-var app = builder.Build();
-
-await app.Services.InitializeApplicationSettingsAsync();
-
-app.Run();
-```
 
 ## Storage model
 

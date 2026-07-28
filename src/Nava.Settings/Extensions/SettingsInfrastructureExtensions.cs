@@ -11,6 +11,8 @@ public static class SettingsInfrastructureExtensions
         this IServiceCollection services,
         Func<IServiceProvider, string> connectionFactory)
     {
+        services.AddLogging();
+
         services.AddDbContext<ConfigurationDbContext>((sp, options) =>
         {
             var connection = connectionFactory(sp);
